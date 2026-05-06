@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="de"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🔍 Finde 10 Hygienefehler</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+ --bg:#1a1a2e; --card:#ffffff;
+ --accent:#f7b731; --accent2:#fc5c65;
+ --green:#26de81; --blue:#45aaf2;
+ --text:#2c3e50; --muted:#7f8c8d;
+ --r:20px;
+ /* Tirol Kliniken Farben laut Nutzerwunsch */
+ --tk-primary:#FF0000; /* Primär */
+ --tk-secondary:#0000FF; /* Sekundär */
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+ radial-gradient(ellipse at 20% 20%,rgba(165,94,234,.18) 0%,transparent 60%),
+ radial-gradient(ellipse at 80% 80%,rgba(247,183,49,.13) 0%,transparent 60%);
+ pointer-events:none;z-index:0}
+/* ── SCREENS ── */
+.screen{display:none;position:relative;z-index:1}
+.screen.active{overflow-y:auto;}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:20px;overflow-y:auto;}
+/* ── QUIZ SCREEN ── */
+#screen-quiz.active{
+  justify-content:flex-start;
+  padding:10px 12px 16px;
+  box-sizing:border-box;
+  min-height:100vh;
+  min-height:100dvh;
+}
+/* Desktop: größeres Padding */
+@media(min-width:768px){
+  #screen-quiz.active{ padding:16px 24px 24px; align-items:center; }
+  .quiz-bar{ font-size:18px; }
+  .btn-submit{ font-size:19px; }
+}
+
+/* ── WELCOME SCREEN ── */
+#screen-name.active{
+  background:#13141f;
+  padding:32px 20px 40px;
+  align-items:center;
+  overflow-y:auto;
+  min-height:100dvh;
+}
+
+.wlc-outer{
+  width:100%;max-width:520px;
+  display:flex;flex-direction:column;
+  align-items:stretch;
+  gap:0;
+}
+.wlc-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.28em;
+  text-transform:uppercase;color:rgba(255,255,255,.38);
+  text-align:center;margin-bottom:18px;
+}
+.wlc-headline{
+  font-family:'Anton',sans-serif;
+  font-size:min(17.5vw, 91px);
+  line-height:.95;color:#f7b731;
+  text-transform:uppercase;
+  text-align:center;
+  letter-spacing:.01em;
+  margin-bottom:18px;
+  word-break:keep-all;
+  hyphens:none;
+  text-shadow:0 0 28px rgba(247,183,49,.3);
+}
+.wlc-tagline{
+  font-size:15px;font-weight:500;color:rgba(255,255,255,.65);
+  text-align:center;margin-bottom:28px;line-height:1.5;
+}
+.wlc-tagline strong{color:#fff;font-weight:800}
+.wlc-form-card{
+  background:#1e2030;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  padding:28px 28px 24px;
+}
+.wlc-form-title{
+  font-size:11px;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(255,255,255,.4);
+  margin-bottom:20px;
+}
+.wlc-field{margin-bottom:16px}
+.wlc-field-label{
+  font-size:10px;font-weight:800;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(255,255,255,.45);
+  margin-bottom:7px;display:block;
+}
+.wlc-inp{
+  width:100%;padding:15px 18px;
+  background:#272a3d;
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  font-size:16px;font-family:'Nunito',sans-serif;font-weight:600;
+  color:#fff;outline:none;
+  transition:border-color .2s,background .2s;
+}
+.wlc-inp::placeholder{color:rgba(255,255,255,.22)}
+.wlc-inp:focus{border-color:#f7b731;background:#2e3148}
+.wlc-btn{
+  width:100%;margin-top:8px;padding:17px;
+  background:linear-gradient(135deg,#f7b731,#f0932b);
+  color:#1a1400;border:none;border-radius:10px;
+  font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;
+  cursor:pointer;letter-spacing:.03em;
+  transition:opacity .18s,transform .12s,box-shadow .18s;
+  box-shadow:0 0 14px rgba(247,183,49,.28);
+}
+.wlc-btn:hover{opacity:.92;box-shadow:0 0 22px rgba(247,183,49,.42)}
+.wlc-btn:active{transform:scale(.98)}
+/* ── CARD ── */
+.card{background:#fff;border-radius:var(--r);padding:40px 36px;max-width:440px;width:100%;
+ box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.1);text-align:center;
+ animation:cardIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:none}}
+.card-icon{font-size:68px;display:block;margin-bottom:10px;animation:bob 1.2s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+h1{font-family:'Nunito',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:34px;color:var(--text);margin-bottom:8px;line-height:1.15;font-weight:800;letter-spacing:.2px}
+.sub{color:var(--muted);font-size:15px;margin-bottom:26px;line-height:1.55}
+.sub strong{color:var(--text)}
+/* ── INPUT ── */
+.inp{width:100%;padding:15px 20px;border:2.5px solid #e8ecf0;border-radius:14px;
+ font-size:18px;font-family:'Nunito',sans-serif;font-weight:700;outline:none;
+ transition:border-color .2s,box-shadow .2s;color:var(--text);background:#f8fafc}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(247,183,49,.15);background:#fff}
+/* ── BUTTONS ── */
+.btn{display:block;width:100%;padding:16px;border:none;border-radius:14px;
+ font-size:17px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;
+ margin-top:12px;transition:transform .15s,box-shadow .15s;letter-spacing:.3px}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:linear-gradient(135deg,#f7b731,#f0932b);color:#fff;box-shadow:0 6px 20px rgba(247,183,49,.4)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(247,183,49,.5)}
+.btn-green{background:linear-gradient(135deg,#26de81,#20bf6b);color:#fff;box-shadow:0 6px 20px rgba(38,222,129,.35)}
+.btn-green:hover{transform:translateY(-2px)}
+.btn-ghost{background:#f0f2f5;color:var(--muted)}
+.btn-red{background:linear-gradient(135deg,#fc5c65,#eb3b5a);color:#fff}
+/* Tirol Kliniken Button */
+.btn-tk{background:linear-gradient(135deg,var(--tk-primary),var(--tk-secondary));color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.btn-tk:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.45)}
+/* ── QUIZ SCREEN BG ── */
+#screen-quiz.active{background:#13141f}
+/* ── QUIZ TOP BAR ── */
+.quiz-bar{width:100%;max-width:880px;display:flex;justify-content:space-between;align-items:center;
+ padding:10px 18px;background:#1e2030;
+ border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:8px}
+.quiz-player{color:#fff;font-family:'Anton',sans-serif;font-size:16px;letter-spacing:.04em}
+.pill{background:#f7b731;color:#13141f;padding:6px 16px;border-radius:30px;
+ font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.05em}
+.quiz-hint{color:rgba(255,255,255,.35);font-size:12px;text-align:center;margin-bottom:6px;
+ font-family:'Nunito',sans-serif;letter-spacing:.03em}
+/* ── IMAGE + MARKERS ── */
+.img-wrap{position:relative;max-width:880px;width:100%;border-radius:12px;overflow:hidden;
+ box-shadow:0 12px 40px rgba(0,0,0,.6);cursor:crosshair;user-select:none;touch-action:manipulation;flex-shrink:0}
+.img-wrap svg,.img-wrap img{display:block;width:100%;height:auto;pointer-events:none}
+.marker{position:absolute;width:52px;height:52px;border-radius:50%;
+ transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;
+ display:flex;align-items:center;justify-content:center;
+ color:#13141f;font-weight:900;font-size:15px;
+ font-family:'Anton',sans-serif;letter-spacing:.02em;
+ border:2.5px solid rgba(255,255,255,.9);
+ background:rgba(247,183,49,.9);
+ box-shadow:0 0 8px rgba(247,183,49,.35),0 2px 6px rgba(0,0,0,.4);
+ animation:markerPop .25s cubic-bezier(.34,1.56,.64,1);
+ transition:transform .15s}
+.marker:hover{transform:translate(-50%,-50%) scale(1.15)}
+@keyframes markerPop{from{transform:translate(-50%,-50%) scale(0) rotate(-20deg)}to{transform:translate(-50%,-50%) scale(1) rotate(0)}}
+/* ── QUIZ FOOTER ── */
+.quiz-footer{width:100%;max-width:880px;display:flex;gap:10px;margin-top:10px}
+.btn-submit{flex:1;padding:15px;
+ background:linear-gradient(135deg,#f7b731,#f0932b);
+ color:#13141f;border:none;border-radius:12px;
+ font-family:'Anton',sans-serif;font-size:17px;letter-spacing:.06em;text-transform:uppercase;
+ cursor:pointer;transition:transform .15s,box-shadow .18s;
+ box-shadow:0 0 14px rgba(247,183,49,.28)}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 0 22px rgba(247,183,49,.42)}
+.btn-clear{padding:15px 16px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);
+ border:1.5px solid rgba(255,255,255,.15);border-radius:12px;font-size:12px;font-weight:700;
+ font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap}
+/* ── DONE ── */
+#screen-done.active{background:#13141f}
+.done-card{
+  background:#1e2030;border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:44px 36px;max-width:440px;width:100%;text-align:center;
+}
+.done-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);margin-bottom:14px}
+.done-title{font-family:'Anton',sans-serif;font-size:2.6rem;line-height:1.05;
+  color:#fff;text-transform:uppercase;letter-spacing:.03em;margin-bottom:20px}
+.done-title span{color:#f7b731}
+.done-count{font-family:'Anton',sans-serif;font-size:90px;line-height:1;color:#f7b731;margin:0 0 4px}
+.done-lbl{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);margin-bottom:18px}
+.done-msg{font-size:14px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:26px}
+.done-btn{
+  display:block;width:100%;padding:15px;
+  background:linear-gradient(135deg,#f7b731,#f0932b);
+  color:#13141f;border:none;border-radius:10px;
+  font-family:'Anton',sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:opacity .18s,transform .12s;
+}
+.done-btn:hover{opacity:.9;transform:translateY(-1px)}
+/* ── ADMIN ── */
+#screen-admin.active{justify-content:flex-start;align-items:stretch;padding:20px;max-width:none}
+@media(min-width:768px){
+  #screen-admin.active{ padding:28px 40px; }
+  .admin-wrap{ max-width:1200px; }
+}
+#screen-admin.active:has(#admin-login:not([style*="display:none"])){background:#13141f;align-items:center;justify-content:center;padding:32px 20px 40px}
+.admin-wrap{width:100%;max-width:980px;margin:0 auto}
+.admin-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.admin-title{font-family:'Anton',sans-serif;font-size:32px;color:#f7b731;font-weight:400;letter-spacing:.5px;text-transform:uppercase}
+.arow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.abtn{padding:12px 20px;border:none;border-radius:12px;font-weight:800;font-size:13px;
+ font-family:'Nunito',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .15s;letter-spacing:.3px}
+.abtn:active{transform:scale(.96)}
+.abtn-y{background:linear-gradient(135deg,#f7b731,#f0932b);color:#fff;box-shadow:0 4px 14px rgba(247,183,49,.35)}
+.abtn-y:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(247,183,49,.45)}
+.abtn-b{background:linear-gradient(135deg,#45aaf2,#2d8fd4);color:#fff;box-shadow:0 4px 14px rgba(69,170,242,.3)}
+.abtn-b:hover{transform:translateY(-1px)}
+.abtn-r{background:linear-gradient(135deg,#fc5c65,#e03e47);color:#fff;box-shadow:0 4px 14px rgba(252,92,101,.3)}
+.abtn-r:hover{transform:translateY(-1px)}
+.abtn-g{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.15)}
+.abtn-g:hover{background:rgba(255,255,255,.15)}
+.tbl-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(247,183,49,.15);border-radius:16px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:rgba(247,183,49,.08);color:rgba(247,183,49,.7);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;font-family:'Nunito',sans-serif}
+tbody td{padding:11px 14px;color:#fff;font-size:13px;border-top:1px solid rgba(255,255,255,.04);font-family:'Nunito',sans-serif}
+tbody tr:hover td{background:rgba(247,183,49,.04)}
+.sb{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:13px}
+.s10{background:linear-gradient(135deg,#ffd700,#ffb300);color:#1a1a2e}
+.shi{background:rgba(38,222,129,.25);color:#26de81}
+.smd{background:rgba(69,170,242,.25);color:#45aaf2}
+.slo{background:rgba(252,92,101,.2);color:#fc5c65}
+.no-data{color:rgba(255,255,255,.25);text-align:center;padding:40px;font-size:14px}
+.winner-box{background:linear-gradient(135deg,#ffd700,#ffb300);border-radius:16px;
+ padding:26px;text-align:center;margin-bottom:18px;box-shadow:0 8px 30px rgba(255,215,0,.3);
+ animation:cardIn .5s cubic-bezier(.34,1.56,.64,1)}
+.winner-box h2{font-family:'Nunito',sans-serif;font-size:18px;color:rgba(0,0,0,.45);margin-bottom:4px;font-weight:900}
+.winner-name{font-family:'Anton',sans-serif;font-size:44px;color:#1a1a2e;font-weight:400;letter-spacing:.5px}
+.winner-score{font-size:12px;color:rgba(0,0,0,.45);margin-top:2px}
+/* ── DETAIL MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;overflow-y:auto;padding:16px}
+.modal-inner{max-width:740px;margin:0 auto;background:#1e2235;border-radius:20px;padding:26px;
+ box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-family:'Anton',sans-serif;font-size:22px;color:#f7b731;font-weight:400;letter-spacing:.5px}
+.modal-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px}
+.score-bar-wrap{margin-bottom:14px}
+.score-bar-track{flex:1;background:rgba(255,255,255,.1);border-radius:30px;height:13px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:30px;transition:width .5s}
+.detail-img{position:relative;border-radius:12px;overflow:hidden;margin-bottom:14px}
+.detail-img svg,.detail-img img{width:100%;height:auto;display:block}
+.zone-dot{position:absolute;border-radius:50%;transform:translate(-50%,-50%);
+ display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;border:2.5px solid}
+.user-dot{position:absolute;border-radius:50%;transform:translate(-50%,-50%);
+ display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;
+ background:rgba(69,170,242,.75);border:2px solid #fff;color:#fff}
+.err-list{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.err-item{border-radius:10px;padding:8px 11px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
+.err-hit{background:rgba(38,222,129,.1);border:1px solid rgba(38,222,129,.3);color:#26de81}
+.err-miss{background:rgba(252,92,101,.07);border:1px solid rgba(252,92,101,.18);color:rgba(255,255,255,.4)}
+/* ── ADMIN TRIGGER ── */
+#admin-btn{position:fixed;bottom:16px;right:16px;width:40px;height:40px;border-radius:50%;
+ border:none;background:rgba(255,255,255,.09);color:rgba(255,255,255,.3);font-size:16px;
+ cursor:pointer;z-index:999;transition:background .2s}
+#admin-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);
+ background:rgba(0,0,0,.85);color:#fff;padding:11px 22px;border-radius:30px;
+ font-size:13px;font-weight:700;opacity:0;pointer-events:none;
+ transition:all .3s;white-space:nowrap;z-index:9999;backdrop-filter:blur(10px)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:480px){
+ .card{padding:30px 22px}
+ h1{font-size:28px}
+ .quiz-bar{flex-direction:column;gap:5px;text-align:center}
+ .err-list{grid-template-columns:1fr}
+ .quiz-hint{font-size:11px;margin-bottom:4px}
+ .pill{font-size:12px;padding:4px 12px}
+ .quiz-footer{margin-top:7px;gap:7px}
+ .btn-submit{padding:13px;font-size:15px}
+ .btn-clear{padding:13px 12px;font-size:13px}
+}
+/* Sehr kleine Höhe (z.B. iPhone SE landscape) */
+@media(max-height:400px){
+ .quiz-bar{padding:5px 10px}
+ .quiz-hint{display:none}
+}
+
+/* ── ZONE EDITOR ── */
+.ze-wrap{background:rgba(247,183,49,.05);border:1px solid rgba(247,183,49,.2);border-radius:16px;padding:20px;margin-bottom:20px}
+.ze-title{font-family:'Anton',sans-serif;font-size:20px;color:#f7b731;margin-bottom:4px;letter-spacing:.5px}
+.ze-hint{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px;line-height:1.55}
+.ze-img-wrap{position:relative;border-radius:10px;overflow:hidden;cursor:crosshair;border:2px solid rgba(247,183,49,.4);box-shadow:0 0 0 4px rgba(247,183,49,.06)}
+.ze-img-wrap img{display:block;width:100%;height:auto;pointer-events:none}
+.ze-dot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2.5px solid #fff;background:rgba(247,183,49,.85);color:#1a1a2e;cursor:pointer;pointer-events:all;transition:transform .15s;font-family:'Nunito',sans-serif}
+.ze-dot:hover{transform:translate(-50%,-50%) scale(1.15)}
+.ze-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.ze-item{display:flex;align-items:center;gap:8px;background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.1);border-radius:10px;padding:8px 10px}
+.ze-num{font-family:'Anton',sans-serif;font-size:16px;color:#f7b731;width:22px;text-align:center;flex-shrink:0}
+.ze-label-inp{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px 10px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;outline:none}
+.ze-label-inp:focus{border-color:#f7b731}
+.ze-label-inp::placeholder{color:rgba(255,255,255,.3)}
+.ze-r-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.ze-r-lbl{font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap}
+.ze-r-inp{width:50px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 8px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;outline:none;text-align:center}
+.ze-del{background:rgba(252,92,101,.25);border:none;color:#fc5c65;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:14px;font-weight:700;flex-shrink:0}
+.ze-actions{display:flex;gap:8px;margin-top:12px}
+.ze-save{padding:10px 20px;background:linear-gradient(135deg,#26de81,#20bf6b);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.ze-clear{padding:10px 16px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+/* ── HAFTUNGSAUSSCHLUSS MODAL ── */
+.disclaimer-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.82);z-index:9500;
+  overflow-y:auto;padding:20px;
+  backdrop-filter:blur(6px);
+}
+.disclaimer-inner{
+  max-width:640px;margin:0 auto;
+  background:#fff;border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+  animation:cardIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+.disclaimer-hdr{
+  background:#1e2030;
+  padding:20px 24px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.disclaimer-hdr-title{
+  font-family:'Anton',sans-serif;font-size:18px;
+  color:#f7b731;letter-spacing:.04em;font-weight:400;
+}
+.disclaimer-close{
+  background:rgba(255,255,255,.1);border:none;
+  color:#fff;width:32px;height:32px;border-radius:50%;
+  cursor:pointer;font-size:15px;display:flex;
+  align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.disclaimer-close:hover{background:rgba(255,255,255,.2)}
+.disclaimer-body{
+  padding:28px 30px 32px;
+  font-family:'Nunito',sans-serif;
+  color:#2c3e50;line-height:1.7;font-size:14px;
+}
+.disclaimer-body h2{
+  font-size:17px;font-weight:800;color:#1e2030;
+  margin:0 0 4px;
+}
+.disclaimer-body .doc-meta{
+  font-size:11px;color:#95a5a6;margin-bottom:20px;
+  padding-bottom:14px;border-bottom:1.5px solid #ecf0f1;
+}
+.disclaimer-body h3{
+  font-size:13px;font-weight:800;color:#1e2030;
+  margin:18px 0 5px;text-transform:uppercase;letter-spacing:.05em;
+}
+.disclaimer-body p{ margin-bottom:10px;color:#4a5568; }
+.disclaimer-body .highlight-box{
+  background:#fff8e6;border-left:4px solid #f7b731;
+  border-radius:0 8px 8px 0;padding:12px 16px;
+  margin:16px 0;font-size:13px;color:#7d5a00;font-weight:600;
+}
+.disclaimer-footer-note{
+  background:#f8fafc;border-top:1px solid #ecf0f1;
+  padding:14px 30px;font-size:11px;color:#95a5a6;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:6px;
+}
+/* ── CREATOR CREDIT ── */
+.wlc-credit{
+  margin-top:20px;
+  padding:14px 16px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;
+  text-align:center;
+}
+.wlc-credit-text{
+  font-size:11px;color:rgba(255,255,255,.28);
+  line-height:1.6;font-weight:600;
+}
+.wlc-credit-text strong{
+  color:rgba(255,255,255,.5);font-weight:800;
+}
+.wlc-disclaimer-link{
+  display:inline-block;
+  margin-top:10px;
+  font-size:11px;font-weight:700;
+  color:rgba(247,183,49,.55);
+  text-decoration:underline;text-underline-offset:3px;
+  cursor:pointer;letter-spacing:.02em;
+  transition:color .2s;
+  background:none;border:none;font-family:'Nunito',sans-serif;
+}
+.wlc-disclaimer-link:hover{color:rgba(247,183,49,.85)}
+/* ── STATION STATS SCREEN ── */
+#screen-stats.active{
+  background:#13141f;
+  justify-content:flex-start;
+  align-items:center;
+  padding:24px 16px 40px;
+  overflow-y:auto;
+}
+.stats-outer{
+  width:100%;max-width:760px;
+  display:flex;flex-direction:column;
+  gap:0;
+}
+.stats-header{
+  text-align:center;
+  margin-bottom:32px;
+}
+.stats-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.28em;
+  text-transform:uppercase;color:rgba(255,255,255,.35);
+  margin-bottom:12px;
+}
+.stats-headline{
+  font-family:'Anton',sans-serif;
+  font-size:min(12vw,64px);
+  line-height:.95;color:#f7b731;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+  margin-bottom:10px;
+  text-shadow:0 0 28px rgba(247,183,49,.25);
+}
+.stats-sub{
+  font-size:14px;color:rgba(255,255,255,.45);
+  font-weight:500;
+}
+.stats-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:28px;
+  align-items:start;
+}
+.stats-kpi{
+  background:#1e2030;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:16px 12px;
+  text-align:center;
+}
+.stats-kpi-val{
+  font-family:'Anton',sans-serif;
+  font-size:34px;color:#f7b731;
+  line-height:1;margin-bottom:4px;
+}
+.stats-kpi-lbl{
+  font-size:10px;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(255,255,255,.3);
+}
+.stats-section-title{
+  font-size:10px;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(255,255,255,.3);
+  margin-bottom:12px;padding-left:4px;
+}
+.station-card{
+  background:#1e2030;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  padding:18px 20px;
+  margin-bottom:10px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.station-card:hover{ border-color:rgba(247,183,49,.25); }
+.station-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;bottom:0;
+  border-radius:16px 0 0 16px;
+  width:4px;
+}
+.station-card.rank-1::before{ background:linear-gradient(180deg,#ffd700,#ffb300); }
+.station-card.rank-2::before{ background:linear-gradient(180deg,#b0bec5,#90a4ae); }
+.station-card.rank-3::before{ background:linear-gradient(180deg,#cd7f32,#a0522d); }
+.station-card.rank-other::before{ background:rgba(255,255,255,.08); }
+.station-top{
+  display:flex;align-items:center;
+  gap:12px;margin-bottom:12px;
+}
+.station-rank{
+  font-family:'Anton',sans-serif;
+  font-size:22px;width:32px;text-align:center;flex-shrink:0;
+  line-height:1;
+}
+.rank-1 .station-rank{ color:#ffd700; }
+.rank-2 .station-rank{ color:#b0bec5; }
+.rank-3 .station-rank{ color:#cd7f32; }
+.rank-other .station-rank{ color:rgba(255,255,255,.25); }
+.station-info{ flex:1;min-width:0; }
+.station-name{
+  font-weight:800;font-size:16px;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.station-meta{
+  font-size:11px;color:rgba(255,255,255,.35);
+  font-weight:600;
+}
+.station-avg-wrap{
+  display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;
+}
+.station-avg-val{
+  font-family:'Anton',sans-serif;
+  font-size:30px;line-height:1;
+}
+.station-avg-lbl{
+  font-size:9px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(255,255,255,.3);
+  margin-top:2px;
+}
+.station-bar-track{
+  width:100%;background:rgba(255,255,255,.07);
+  border-radius:30px;height:10px;overflow:hidden;
+}
+.station-bar-fill{
+  height:100%;border-radius:30px;
+  width:0%;
+  transition:width 1s cubic-bezier(.25,.46,.45,.94);
+}
+.station-dots{
+  display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;
+}
+.station-dot{
+  width:24px;height:24px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;font-family:'Anton',sans-serif;
+  flex-shrink:0;
+  title:'';
+}
+.stats-back-btn{
+  display:block;width:100%;max-width:760px;
+  padding:15px;margin-top:8px;
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.5);
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  font-family:'Anton',sans-serif;font-size:15px;letter-spacing:.05em;
+  cursor:pointer;text-align:center;
+  transition:background .2s,color .2s;
+}
+.stats-back-btn:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
+@media(max-width:480px){
+  .stats-summary{ grid-template-columns:repeat(3,1fr);gap:7px; }
+  .stats-kpi-val{ font-size:26px; }
+  .station-name{ font-size:14px; }
+  .station-avg-val{ font-size:24px; }
+}
+/* Landscape auf Smartphone: Bild links, Controls rechts */
+@media(max-height:500px) and (orientation:landscape){
+  #screen-quiz.active{
+    flex-direction:row;
+    flex-wrap:nowrap;
+    align-items:stretch;
+    padding:6px;
+    gap:6px;
+    height:100dvh;
+    overflow:hidden;
+    justify-content:flex-start;
+  }
+  .quiz-bar{ display:none; }
+  .quiz-hint{ display:none; }
+  .img-wrap{
+    flex:1 1 auto;
+    min-width:0;
+    height:calc(100dvh - 12px);
+    max-height:calc(100dvh - 12px);
+    max-width:none;
+    border-radius:8px;
+    align-self:center;
+  }
+  .img-wrap img{
+    width:auto;
+    height:100%;
+    max-height:calc(100dvh - 12px);
+    max-width:100%;
+    object-fit:contain;
+  }
+  .quiz-footer{
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    width:120px;
+    margin:0;
+    gap:6px;
+    align-self:center;
+    justify-content:center;
+  }
+  .btn-submit{ padding:14px 8px; font-size:13px; flex:0; }
+  .btn-clear{ padding:10px 8px; font-size:12px; flex:0; }
+}
+@media(max-height:500px) and (orientation:landscape){
+  #screen-name.active{ padding:16px 20px 20px; }
+  .wlc-eyebrow{ margin-bottom:8px; }
+  .wlc-headline{ font-size:min(10vw,52px); margin-bottom:8px; }
+  .wlc-tagline{ margin-bottom:14px; font-size:13px; }
+}
+</style>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getDatabase, ref, set, get, remove, onValue, push } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+  // ── FIREBASE KONFIGURATION ── (Werte nach Setup eintragen)
+  const firebaseConfig = {
+    apiKey:            "AIzaSyB3txPoQhWNAsz0ymluS0ZX7YX1mMzDWp0",
+    authDomain:        "move-quiz.firebaseapp.com",
+    databaseURL:       "https://move-quiz-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "move-quiz",
+    storageBucket:     "move-quiz.firebasestorage.app",
+    messagingSenderId: "378581926288",
+    appId:             "1:378581926288:web:a81c843fae3548952bb315"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const DBREF = "quiz_participants";
+
+  window._fbPush = async function(entry){
+    try{ await push(ref(db, DBREF), entry); return true; }
+    catch(e){ console.warn('Firebase push fehlgeschlagen:', e); return false; }
+  };
+  window._fbLoad = async function(){
+    try{
+      const snap = await get(ref(db, DBREF));
+      if(!snap.exists()) return [];
+      return Object.entries(snap.val()).map(([k,v]) => ({...v, _fbKey: k}));
+    }catch(e){ console.warn('Firebase load fehlgeschlagen:', e); return []; }
+  };
+  window._fbClear = async function(){
+    try{ await set(ref(db, DBREF), null); return true; }
+    catch(e){ return false; }
+  };
+  window._fbListen = function(callback){
+    onValue(ref(db, DBREF), snap => {
+      if(!snap.exists()){ callback([]); return; }
+      callback(Object.entries(snap.val()).map(([k,v]) => ({...v, _fbKey: k})));
+    });
+  };
+  window._fbDelete = async function(key){
+    try{ await remove(ref(db, DBREF+'/'+key)); return true; }
+    catch(e){ console.warn('Firebase delete fehlgeschlagen:', e); return false; }
+  };
+  window._fbUpdate = async function(key, data){
+    try{
+      const clean = Object.assign({}, data);
+      delete clean._fbKey;
+      await set(ref(db, DBREF+'/'+key), clean);
+      return true;
+    }catch(e){ console.warn('Firebase update fehlgeschlagen:', e); return false; }
+  };
+  window._firebaseReady = true;
+  document.dispatchEvent(new Event('firebase-ready'));
+</script>
+</head>
+<body>
+<button id="admin-btn" onclick="openAdminLogin()" title="Admin">⚙️</button>
+<div id="toast"></div>
+<!-- SCREEN 1 · Anmeldung -->
+<div id="screen-name" class="screen active">
+  <div class="wlc-outer">
+    <div class="wlc-eyebrow">Anmelden &nbsp;·&nbsp; Suchen</div>
+    <h1 class="wlc-headline">Herzlich<br>Willkommen</h1>
+    <p class="wlc-tagline">Finde <strong>10 hygienerelevante Fehler</strong> im Bild.</p>
+    <div class="wlc-form-card">
+      <div class="wlc-form-title">Anmeldung</div>
+      <div class="wlc-field">
+        <label class="wlc-field-label" for="inp-name">Pseudonym</label>
+        <input type="text" id="inp-name" class="wlc-inp" placeholder="Pseudonym" maxlength="40" onkeydown="if(event.key==='Enter')document.getElementById('inp-dept').focus()">
+      </div>
+      <div class="wlc-field">
+        <label class="wlc-field-label" for="inp-dept">Gruppe</label>
+        <input type="text" id="inp-dept" class="wlc-inp" placeholder="z. B. Gruppe 1" maxlength="60" onkeydown="if(event.key==='Enter')startQuiz()">
+      </div>
+      <button class="wlc-btn" onclick="startQuiz()">Weiter →</button>
+    </div>
+    <div class="wlc-credit">
+      <div class="wlc-credit-text">
+        Konzept &amp; Entwicklung<br>
+        <strong>Michael Engl, DSA</strong>
+      </div>
+      <button class="wlc-disclaimer-link" onclick="openDisclaimer()">📄 Haftungsausschluss</button>
+    </div>
+  </div>
+</div>
+<!-- SCREEN 2 · Quiz -->
+<div id="screen-quiz" class="screen">
+ <div class="quiz-bar">
+   <div class="quiz-player"><span id="disp-name"></span></div>
+   <div class="pill" id="disp-count">0 / 10 markiert</div>
+ </div>
+ <div class="quiz-hint">Tippe auf verdächtige Stellen — nochmals tippen zum Entfernen</div>
+ <div class="img-wrap" id="img-wrap"></div>
+ <div class="quiz-footer">
+   <button class="btn-clear" onclick="clearMarkers()">Löschen</button>
+   <button class="btn-submit" onclick="submitQuiz()">Antworten senden</button>
+ </div>
+</div>
+<!-- SCREEN 3 · Bereits teilgenommen -->
+<div id="screen-already" class="screen">
+ <div class="card">
+   <span class="card-icon" style="animation:none">🚫</span>
+   <h1>Bereits dabei!</h1>
+   <p class="sub" id="already-msg">Du hast bereits teilgenommen.<br>Jede Person darf nur einmal mitspielen.</p>
+   <button class="btn btn-ghost" onclick="goTo('screen-name')">← Zurück</button>
+ </div>
+</div>
+<!-- SCREEN 4 · Danke -->
+<div id="screen-done" class="screen">
+ <div class="done-card">
+   <div class="done-eyebrow">Vielen Dank</div>
+   <div class="done-title">Gut gemacht,<br><span id="done-name"></span>!</div>
+   <div class="done-count" id="done-count">0</div>
+   <div class="done-lbl">Stellen markiert</div>
+   <p class="done-msg">Deine Antworten wurden gespeichert.</p>
+   <button class="done-btn" onclick="goTo('screen-name')">Nächste Person</button>
+ </div>
+</div>
+<!-- HAFTUNGSAUSSCHLUSS MODAL -->
+<div class="disclaimer-bg" id="disclaimer-modal" onclick="if(event.target===this)closeDisclaimer()">
+  <div class="disclaimer-inner">
+    <div class="disclaimer-hdr">
+      <div class="disclaimer-hdr-title">📄 Haftungsausschluss</div>
+      <button class="disclaimer-close" onclick="closeDisclaimer()">✕</button>
+    </div>
+    <div class="disclaimer-body" id="disclaimer-body">
+      <div style="text-align:center;padding:30px;color:#95a5a6;font-size:13px">Wird geladen…</div>
+    </div>
+    <div class="disclaimer-footer-note">
+      <span>© 2025 Michael Engl, DSA — Alle Rechte vorbehalten</span>
+      <button onclick="closeDisclaimer()" style="background:#1e2030;color:#f7b731;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;letter-spacing:.03em">Schließen</button>
+    </div>
+  </div>
+</div>
+<!-- SCREEN 6 · Stationsauswertung -->
+<div id="screen-stats" class="screen">
+  <div class="stats-outer">
+    <div class="stats-header">
+      <div class="stats-eyebrow">Auswertung nach Gruppe</div>
+      <div class="stats-headline">Gruppen<br>Ranking</div>
+      <div class="stats-sub" id="stats-sub-text">Durchschnittliche Treffer je Gruppe</div>
+    </div>
+    <div class="stats-summary" id="stats-summary"></div>
+    <div class="stats-section-title" id="stats-section-title">Gruppen nach Trefferquote</div>
+    <div id="stats-list"></div>
+    <button class="stats-back-btn" onclick="goTo('screen-admin')">← Zurück zur Übersicht</button>
+  </div>
+</div>
+<!-- SCREEN 5 · Admin -->
+<div id="screen-admin" class="screen">
+  <!-- Login -->
+  <div id="admin-login" style="width:100%;max-width:400px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:14px">Auswertung &nbsp;·&nbsp; Verwaltung</div>
+      <div style="font-family:'Anton',sans-serif;font-size:min(14vw,72px);line-height:.95;color:#f7b731;text-transform:uppercase;letter-spacing:.01em;margin-bottom:16px">Admin<br>Bereich</div>
+      <p style="font-size:14px;font-weight:500;color:rgba(255,255,255,.55);line-height:1.5">Zugang nur für autorisiertes Personal</p>
+    </div>
+    <div style="background:#1e2030;border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:28px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:16px">Anmeldung</div>
+      <label style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:7px;display:block">Passwort</label>
+      <input type="password" id="admin-pw" style="width:100%;padding:15px 18px;background:#272a3d;border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:16px;font-family:'Nunito',sans-serif;font-weight:600;color:#fff;outline:none;box-sizing:border-box;transition:border-color .2s,background .2s" placeholder="Passwort eingeben" onfocus="this.style.borderColor='#f7b731';this.style.background='#2e3148'" onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.background='#272a3d'" onkeydown="if(event.key==='Enter')checkPw()">
+      <button onclick="checkPw()" style="width:100%;margin-top:14px;padding:17px;background:linear-gradient(135deg,#f7b731,#f0932b);color:#1a1400;border:none;border-radius:12px;font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;letter-spacing:.3px;transition:transform .15s,box-shadow .15s;box-shadow:0 6px 20px rgba(247,183,49,.35)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(247,183,49,.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 6px 20px rgba(247,183,49,.35)'" onmousedown="this.style.transform='scale(.97)'">🔓 Einloggen</button>
+      <button onclick="goTo('screen-name')" style="width:100%;margin-top:8px;padding:14px;background:transparent;color:rgba(255,255,255,.4);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:color .15s,border-color .15s" onmouseover="this.style.color='rgba(255,255,255,.7)';this.style.borderColor='rgba(255,255,255,.25)'" onmouseout="this.style.color='rgba(255,255,255,.4)';this.style.borderColor='rgba(255,255,255,.1)'">← Zurück</button>
+    </div>
+  </div>
+  <!-- Dashboard -->
+  <div id="admin-dash" class="admin-wrap" style="display:none">
+    <div class="admin-hdr">
+      <div class="admin-title">🏆 Auswertung</div>
+    </div>
+
+    <!-- ZONE EDITOR -->
+    <div class="ze-wrap">
+      <div class="ze-title">Fehlerzonen definieren</div>
+      <div class="ze-hint">Klicke auf das Bild um Fehlerzonen zu setzen. Radius = Trefferbereich. Fehler-Nr. = Zonen mit gleicher Nummer zählen als ein Fehler (z.B. Infusionsleitung an 3 Stellen → alle Fehler-Nr. 7). Auf Punkt klicken = entfernen. Speichern nicht vergessen!</div>
+
+      <div class="ze-img-wrap" id="ze-img-wrap"></div>
+      <div class="ze-list" id="ze-list"></div>
+      <div class="ze-actions">
+        <button class="ze-save" onclick="saveZones()">Zonen speichern</button>
+        <button class="ze-clear" onclick="clearZones()">Alle loeschen</button>
+        <button class="ze-save" style="background:linear-gradient(135deg,#45aaf2,#2d8fd4)" onclick="exportZonesToHTML()" title="Zonen fest in HTML-Datei einbetten – für GitHub Upload">⬇️ HTML mit Zonen exportieren</button>
+      </div>
+    </div>
+
+    <div id="winner-wrap"></div>
+    <div class="arow">
+      <button class="abtn abtn-y" onclick="drawWinner()">🎲 Gewinner ziehen</button>
+      <button class="abtn abtn-b" onclick="loadAdmin()">🔄 Aktualisieren</button>
+      <button class="abtn abtn-b" style="background:linear-gradient(135deg,#26de81,#20bf6b);box-shadow:0 4px 14px rgba(38,222,129,.3)" onclick="openGroupEditor()">✏️ Gruppen bearbeiten</button>
+      <button class="abtn abtn-b" style="background:linear-gradient(135deg,#a55eea,#8854d0);box-shadow:0 4px 14px rgba(165,94,234,.3)" onclick="showStats()">📊 Gruppenauswertung</button>
+      <button class="abtn abtn-g" onclick="toggleReveal()">👁️ Treffer ein/aus</button>
+      <button class="abtn abtn-g" onclick="exportCSV()">📥 CSV Export</button>
+      <button class="abtn abtn-g" onclick="exportSnapshot()" title="Alle Daten als JSON sichern">💾 Snapshot sichern</button>
+      <button class="abtn abtn-g" onclick="document.getElementById('import-file').click()" title="Snapshot wiederherstellen">📂 Snapshot laden</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importSnapshot(this)">
+      <button class="abtn abtn-r" onclick="clearAll()">🗑️ Alle Daten löschen</button>
+      <button class="abtn abtn-g" onclick="goTo('screen-name')">← Exit</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Name</th><th>Gruppe</th><th>Datum</th><th>Uhrzeit</th>
+            <th>Markierungen</th><th id="score-th">Treffer</th><th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+    <p style="color:rgba(255,255,255,.2);font-size:11px;margin-top:10px;text-align:center">
+      Treffer = Klick innerhalb der Toleranzzone eines echten Fehlers
+    </p>
+  </div>
+</div>
+<!-- GRUPPEN-EDITOR MODAL -->
+<div class="modal-bg" id="grp-modal" onclick="if(event.target===this)closeGroupEditor()" style="display:none">
+  <div class="modal-inner" style="max-width:520px;max-height:80vh;overflow-y:auto">
+    <div class="modal-hdr">
+      <div class="modal-title">✏️ Gruppen bearbeiten</div>
+      <button class="modal-close" onclick="closeGroupEditor()">✕</button>
+    </div>
+    <p style="font-size:12px;color:rgba(255,255,255,.45);margin:0 0 16px;line-height:1.6">
+      Namen hier anpassen – gleiche Schreibweise = selbe Gruppe in der Auswertung.<br>
+      Änderungen gelten für alle Teilnehmer dieser Gruppe.
+    </p>
+    <div id="grp-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end">
+      <button onclick="saveGroupRenames()" style="background:linear-gradient(135deg,#26de81,#20bf6b);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer">💾 Alle speichern</button>
+      <button onclick="closeGroupEditor()" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">Abbrechen</button>
+    </div>
+  </div>
+</div>
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+ <div class="modal-inner">
+   <div class="modal-hdr">
+     <div class="modal-title" id="modal-title">Details</div>
+     <button class="modal-close" onclick="closeModal()">✕</button>
+   </div>
+   <div class="score-bar-wrap" id="modal-score"></div>
+   <div class="detail-img" id="modal-img"></div>
+   <div class="err-list" id="modal-list"></div>
+   <div id="modal-actions" style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
+ </div>
+</div>
+<script>
+// HTML-Quelle beim Laden sichern (für Export ohne fetch)
+const _HTML_SOURCE = document.documentElement.outerHTML;
+// CONFIG
+const CFG = {
+ adminPw: 'admin2024',
+ maxClicks: 10,
+ tolerance: 0,
+ customImg: "quiz-bild.jpg",
+ zones: [
+  {
+   "id": 1,
+   "x": 20.202558635394457,
+   "y": 41.83592017738359,
+   "r": 6,
+   "label": "Staub"
+  },
+  {
+   "id": 2,
+   "x": 73.93390191897655,
+   "y": 40.55875831485587,
+   "r": 5,
+   "label": "Staub",
+   "errorId": 1
+  },
+  {
+   "id": 3,
+   "x": 48.45415778251599,
+   "y": 34.031042128603104,
+   "r": 4,
+   "label": "Aufhängung",
+   "errorId": 2
+  }
+ ]
+};
+// Gespeicherte Zonen sofort beim Start laden (überschreibt Defaults)
+(function(){
+ try{
+  const saved = JSON.parse(localStorage.getItem('hq_zones_v1'));
+  if(saved && saved.length) CFG.zones = saved;
+ }catch(e){}
+})();
+// DEMO SVG (600×400)
+// Zonen sofort beim Start laden – NICHT erst beim Admin-Login
+(function(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('hq_zones_v1'));
+    if(saved && saved.length) CFG.zones = saved;
+  } catch(e) {}
+  // Aspektverhältnis des Quiz-Bildes ermitteln für korrekte Treffererkennung
+  if(CFG.customImg){
+    const img = new Image();
+    img.onload = function(){ CFG.imgAspect = this.naturalWidth / this.naturalHeight; };
+    img.src = CFG.customImg;
+  }
+})();
+const SVG = `<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4fc3f7"/><stop offset="100%" stop-color="#b3e5fc"/></linearGradient>
+ <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#81c784"/><stop offset="100%" stop-color="#388e3c"/></linearGradient>
+</defs>
+<rect width="600" height="400" fill="url(#sky)"/>
+<rect y="340" width="600" height="60" fill="url(#gnd)"/>
+<rect y="338" width="600" height="8" rx="4" fill="#a5d6a7"/>
+<!-- FEHLER 1: Wolke flacher Boden -->
+<ellipse cx="100" cy="55" rx="35" ry="20" fill="white"/>
+<ellipse cx="130" cy="44" rx="30" ry="22" fill="white"/>
+<ellipse cx="160" cy="55" rx="28" ry="18" fill="white"/>
+<rect x="65" y="55" width="123" height="20" fill="white"/>
+<!-- Normale Wolke rechts -->
+<ellipse cx="310" cy="60" rx="38" ry="20" fill="white" opacity=".9"/>
+<ellipse cx="338" cy="48" rx="28" ry="20" fill="white" opacity=".9"/>
+<ellipse cx="360" cy="60" rx="25" ry="15" fill="white" opacity=".9"/>
+<ellipse cx="288" cy="62" rx="22" ry="14" fill="white" opacity=".9"/>
+<!-- FEHLER 2: Sonne viereckiges Auge -->
+<circle cx="530" cy="50" r="36" fill="#FFD54F"/>
+<line x1="530" y1="5" x2="530" y2="0" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="530" y1="95" x2="530" y2="102" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="484" y1="50" x2="477" y2="50" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="576" y1="50" x2="584" y2="50" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="497" y1="17" x2="491" y2="11" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="563" y1="17" x2="569" y2="11" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="497" y1="83" x2="491" y2="89" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<line x1="563" y1="83" x2="569" y2="89" stroke="#FFCA28" stroke-width="4" stroke-linecap="round"/>
+<circle cx="519" cy="44" r="4" fill="#5D4037"/>
+<rect x="535" y="40" width="8" height="8" fill="#5D4037" rx="1"/>
+<path d="M 518 62 Q 530 73 542 62" stroke="#5D4037" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<!-- FEHLER 3: Vogel kopfüber -->
+<path d="M 358 84 Q 369 97 380 84" stroke="#37474f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M 380 84 Q 391 97 402 84" stroke="#37474f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M 430 100 Q 438 91 446 100" stroke="#37474f" stroke-width="2" fill="none"/>
+<path d="M 446 100 Q 454 91 462 100" stroke="#37474f" stroke-width="2" fill="none"/>
+<!-- FEHLER 4: Rauch seitwärts -->
+<rect x="150" y="90" width="30" height="80" fill="#8d6e63"/>
+<rect x="146" y="87" width="38" height="10" fill="#795548"/>
+<ellipse cx="198" cy="103" rx="13" ry="9" fill="#b0bec5" opacity=".85"/>
+<ellipse cx="218" cy="99" rx="12" ry="8" fill="#cfd8dc" opacity=".75"/>
+<ellipse cx="237" cy="96" rx="11" ry="7" fill="#eceff1" opacity=".65"/>
+<ellipse cx="254" cy="93" rx="9" ry="6" fill="#f5f5f5" opacity=".55"/>
+<!-- Haus -->
+<rect x="100" y="165" width="200" height="180" fill="#ffe0b2" stroke="#ffb74d" stroke-width="2"/>
+<polygon points="82,167 200,105 318,167" fill="#8d6e63"/>
+<polygon points="82,167 318,167 318,178 82,178" fill="#6d4c41"/>
+<!-- Linkes Fenster normal -->
+<rect x="115" y="200" width="55" height="50" fill="#b3e5fc" stroke="#795548" stroke-width="2"/>
+<line x1="142" y1="200" x2="142" y2="250" stroke="#795548" stroke-width="2"/>
+<line x1="115" y1="225" x2="170" y2="225" stroke="#795548" stroke-width="2"/>
+<!-- FEHLER 6: Fenster diagonal -->
+<rect x="225" y="200" width="55" height="50" fill="#b3e5fc" stroke="#795548" stroke-width="2"/>
+<line x1="225" y1="200" x2="280" y2="250" stroke="#795548" stroke-width="2"/>
+<line x1="280" y1="200" x2="225" y2="250" stroke="#795548" stroke-width="2"/>
+<!-- FEHLER 5: Türklinke links -->
+<rect x="175" y="278" width="55" height="88" fill="#8d6e63"/>
+<rect x="178" y="281" width="49" height="82" fill="#a1887f"/>
+<rect x="182" y="286" width="41" height="30" fill="none" stroke="#795548" stroke-width="1.5"/>
+<rect x="182" y="323" width="41" height="30" fill="none" stroke="#795548" stroke-width="1.5"/>
+<circle cx="185" cy="320" r="5.5" fill="#FFD54F"/>
+<rect x="180" y="317" width="12" height="4" rx="2" fill="#FFC107"/>
+<rect x="188" y="346" width="30" height="26" fill="#d7ccc8"/>
+<!-- Baum -->
+<circle cx="445" cy="215" r="65" fill="#2e7d32"/>
+<circle cx="415" cy="230" r="42" fill="#388e3c"/>
+<circle cx="472" cy="228" r="38" fill="#33691e"/>
+<rect x="433" y="270" width="24" height="80" fill="#6d4c41"/>
+<!-- FEHLER 7: Ast nach unten -->
+<line x1="443" y1="258" x2="407" y2="295" stroke="#5d4037" stroke-width="9" stroke-linecap="round"/>
+<!-- Bank -->
+<rect x="500" y="280" width="82" height="8" rx="3" fill="#795548"/>
+<rect x="512" y="280" width="6" height="20" rx="2" fill="#6d4c41"/>
+<rect x="568" y="280" width="6" height="20" rx="2" fill="#6d4c41"/>
+<rect x="498" y="295" width="86" height="9" rx="3" fill="#8d6e63"/>
+<rect x="510" y="304" width="8" height="26" rx="2" fill="#6d4c41"/>
+<!-- FEHLER 8: Bankbein zu kurz -->
+<rect x="566" y="304" width="8" height="16" rx="2" fill="#6d4c41"/>
+<!-- Zaun -->
+<line x1="320" y1="320" x2="440" y2="320" stroke="#8d6e63" stroke-width="3"/>
+<rect x="325" y="298" width="10" height="24" rx="1" fill="#a1887f"/>
+<polygon points="325,298 335,298 330,289" fill="#a1887f"/>
+<rect x="350" y="298" width="10" height="24" rx="1" fill="#a1887f"/>
+<polygon points="350,298 360,298 355,289" fill="#a1887f"/>
+<!-- FEHLER 9: Zaunpfahl kopfüber -->
+<rect x="375" y="298" width="10" height="24" rx="1" fill="#a1887f"/>
+<polygon points="375,322 385,322 380,331" fill="#a1887f"/>
+<rect x="400" y="298" width="10" height="24" rx="1" fill="#a1887f"/>
+<polygon points="400,298 410,298 405,289" fill="#a1887f"/>
+<rect x="425" y="298" width="10" height="24" rx="1" fill="#a1887f"/>
+<polygon points="425,298 435,298 430,289" fill="#a1887f"/>
+<!-- Blumen -->
+<line x1="35" y1="338" x2="35" y2="365" stroke="#388e3c" stroke-width="2.5"/>
+<circle cx="35" cy="336" r="11" fill="#f48fb1"/>
+<circle cx="26" cy="331" r="7" fill="#f48fb1"/><circle cx="44" cy="331" r="7" fill="#f48fb1"/>
+<circle cx="26" cy="341" r="7" fill="#f48fb1"/><circle cx="44" cy="341" r="7" fill="#f48fb1"/>
+<circle cx="35" cy="336" r="6" fill="#fff59d"/>
+<line x1="68" y1="338" x2="68" y2="365" stroke="#388e3c" stroke-width="2.5"/>
+<circle cx="68" cy="336" r="11" fill="#ce93d8"/>
+<circle cx="59" cy="331" r="7" fill="#ce93d8"/><circle cx="77" cy="331" r="7" fill="#ce93d8"/>
+<circle cx="68" cy="336" r="6" fill="#fff59d"/>
+<!-- FEHLER 10: Blume nach unten -->
+<line x1="97" y1="322" x2="97" y2="349" stroke="#388e3c" stroke-width="2.5"/>
+<circle cx="97" cy="351" r="11" fill="#ef9a9a"/>
+<circle cx="88" cy="356" r="7" fill="#ef9a9a"/><circle cx="106" cy="356" r="7" fill="#ef9a9a"/>
+<circle cx="88" cy="346" r="7" fill="#ef9a9a"/><circle cx="106" cy="346" r="7" fill="#ef9a9a"/>
+<circle cx="97" cy="351" r="6" fill="#fff59d"/>
+</svg>`;
+// STATE
+const KEY = 'fq_v3';
+let participants = [];
+let player = null;
+let clicks = [];
+let seq = 0;
+let showHits = true;
+
+// Teilnehmer in Firebase speichern (push = neuer Eintrag)
+async function save(){
+  const p = participants[participants.length - 1];
+  if(!p) return;
+  if(window._firebaseReady){
+    await window._fbPush(p);
+  } else {
+    // Fallback localStorage
+    localStorage.setItem(KEY, JSON.stringify(participants));
+  }
+}
+
+// Laden: Firebase wenn verfügbar, sonst localStorage
+async function load(){
+  if(window._firebaseReady){
+    return await window._fbLoad();
+  }
+  try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; }
+}
+// NAVIGATION
+function goTo(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ window.scrollTo(0,0);
+}
+// QUIZ FLOW
+function startQuiz(){
+ const name = document.getElementById('inp-name').value.trim();
+ const dept = document.getElementById('inp-dept').value.trim();
+ if(!name){ toast('Bitte deinen Namen eingeben 😊'); document.getElementById('inp-name').focus(); return; }
+ if(!dept){ toast('Bitte Abteilung / Station eingeben 😊'); document.getElementById('inp-dept').focus(); return; }
+ // Doppel-Sperre
+ const norm = name.toLowerCase().replace(/\s+/g,' ');
+ const dup = participants.find(p => p.name.toLowerCase().replace(/\s+/g,' ')===norm);
+ if(dup){
+  document.getElementById('already-msg').innerHTML = `<strong>${esc(dup.name)}</strong> hat bereits um ${dup.time} teilgenommen.<br>Jede Person darf nur einmal mitspielen.`;
+  document.getElementById('inp-name').value='';
+  document.getElementById('inp-dept').value='';
+  goTo('screen-already');
+  return;
+ }
+ player = { name, dept, time: new Date().toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'}), date: new Date().toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'}) };
+ clicks = []; seq = 0;
+ document.getElementById('disp-name').textContent = name;
+ document.getElementById('inp-name').value='';
+ document.getElementById('inp-dept').value='';
+ buildImage();
+ goTo('screen-quiz');
+}
+function buildImage(){
+ const wrap = document.getElementById('img-wrap');
+ wrap.innerHTML = CFG.customImg ? `<img src="${CFG.customImg}" draggable="false" style="width:100%;height:auto;display:block">` : SVG;
+ wrap.addEventListener('click', onImgClick);
+ updateCount();
+}
+function onImgClick(e){
+ const wrap = document.getElementById('img-wrap');
+ const r = wrap.getBoundingClientRect();
+ const xP = (e.clientX - r.left) / r.width * 100;
+ const yP = (e.clientY - r.top) / r.height * 100;
+ // Remove if tapping near an existing marker
+ for(let i=0;i<clicks.length;i++){
+  const c=clicks[i];
+  const aspect = r.height/r.width;
+  if(Math.sqrt((xP-c.xPct)**2+((yP-c.yPct)/aspect)**2) < 4){
+   document.getElementById('mk-'+c.id)?.remove();
+   clicks.splice(i,1);
+   renumber();
+   return;
+  }
+ }
+ if(clicks.length>=CFG.maxClicks){ toast(`Maximal ${CFG.maxClicks} Markierungen erlaubt`); return; }
+ const id=++seq;
+ clicks.push({id,xPct:xP,yPct:yP});
+ addMarker(id,xP,yP,clicks.length);
+ updateCount();
+}
+function addMarker(id,x,y,num){
+ const wrap = document.getElementById('img-wrap');
+ const el = document.createElement('div');
+ el.id='mk-'+id; el.className='marker';
+ el.style.left=x+'%'; el.style.top=y+'%';
+ el.textContent=num;
+ wrap.appendChild(el);
+}
+function renumber(){
+ clicks.forEach((c,i)=>{
+  const el=document.getElementById('mk-'+c.id);
+  if(el) el.textContent=i+1;
+ });
+ updateCount();
+}
+function updateCount(){
+ document.getElementById('disp-count').textContent=`${clicks.length} / ${CFG.maxClicks} markiert`;
+}
+function clearMarkers(){
+ clicks=[];
+ document.querySelectorAll('.marker').forEach(m=>m.remove());
+ updateCount();
+}
+async function submitQuiz(){
+ if(!clicks.length){ toast('Bitte mindestens eine Stelle markieren!'); return; }
+ player.clicks = clicks.map(c=>({xPct:c.xPct,yPct:c.yPct}));
+ player.total = clicks.length;
+ player.score = scoreClicks(clicks);
+ participants.push(player);
+ document.getElementById('done-name').textContent = player.name;
+ document.getElementById('done-count').textContent = player.total;
+ goTo('screen-done');
+ await save();
+ player=null; clicks=[];
+}
+function scoreClicks(clks){
+ return calcHits(clks).score;
+}
+// Kernfunktion: gibt {score, hitErrors} zurück – wird überall genutzt
+// Gibt die ersten 10 eindeutigen Fehler-IDs aus den definierten Zonen zurück
+function getScoringErrors(){
+ const seen=new Set(), list=[];
+ CFG.zones.forEach(z=>{
+  const key=z.errorId!==undefined?z.errorId:z.id;
+  if(!seen.has(key)){ seen.add(key); list.push({key,label:z.label}); }
+ });
+ return list.slice(0,10); // Exakt 10 Fehler zählen
+}
+
+function calcHits(clks){
+ const scoringErrors=getScoringErrors();
+ const scoringKeys=new Set(scoringErrors.map(e=>e.key));
+ const hitErrors=new Set();
+ // Seitenverhältnis-Korrektur: r ist % der Bildbreite
+ // yDiff muss mit Aspektverhältnis (Breite/Höhe) skaliert werden damit Trefferzone im Pixelraum kreisförmig ist
+ const aspect = CFG.imgAspect || 1; // Breite/Höhe, wird beim Bildladen gesetzt
+ clks.forEach(c=>{
+  CFG.zones.forEach(z=>{
+   const dx = c.xPct - z.x;
+   const dy = (c.yPct - z.y) / aspect; // y-Abstand in Einheiten der Bildbreite normieren
+   if(Math.sqrt(dx*dx + dy*dy) <= z.r + CFG.tolerance){
+    const key=z.errorId!==undefined?z.errorId:z.id;
+    if(scoringKeys.has(key)) hitErrors.add(key);
+   }
+  });
+ });
+ return { score: hitErrors.size, hitErrors, scoringErrors };
+}
+// ADMIN
+function openAdminLogin(){
+ document.getElementById('admin-login').style.display='';
+ document.getElementById('admin-dash').style.display='none';
+ goTo('screen-admin');
+}
+function checkPw(){
+ const pw=document.getElementById('admin-pw').value;
+ if(pw===CFG.adminPw){
+  document.getElementById('admin-login').style.display='none';
+  document.getElementById('admin-dash').style.display='';
+  document.getElementById('admin-pw').value='';
+  initZoneEditor();
+  loadAdmin();
+ } else {
+  toast('Falsches Passwort 🔒');
+  document.getElementById('admin-pw').value='';
+ }
+}
+function renderAdminTable(ps){
+ participants = ps;
+ participants.forEach(p=>{ p.score = calcHits(p.clicks||[]).score; });
+ const tbody=document.getElementById('tbl-body');
+ tbody.innerHTML='';
+ document.getElementById('score-th').textContent = showHits ? 'Treffer ✓' : 'Treffer';
+ if(!participants.length){
+  tbody.innerHTML='<tr><td colspan="7" class="no-data">Noch keine Teilnehmer 🕐</td></tr>';
+  return;
+ }
+ const sorted=[...participants].sort((a,b)=>b.score-a.score);
+ sorted.forEach((p,i)=>{
+  const s=p.score;
+  const cls=s===10?'s10':s>=7?'shi':s>=4?'smd':'slo';
+  const lbl=s===10?'🥇':s+'';
+  const idx=participants.indexOf(p);
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+  <td style="color:rgba(255,255,255,.35)">${i+1}</td>
+  <td style="font-weight:800">${esc(p.name)}</td>
+  <td style="color:rgba(255,255,255,.6);cursor:pointer" title="Klicken zum Bearbeiten" onclick="editDept(${idx}, this)">${esc(p.dept||'–')}</td>
+  <td style="color:rgba(255,255,255,.45)">${esc(p.date||'–')}</td>
+  <td style="color:rgba(255,255,255,.45)">${esc(p.time||'–')}</td>
+  <td style="color:rgba(255,255,255,.55)">${p.total}</td>
+  <td>${showHits?`<span class="sb ${cls}">${lbl}</span>`:'—'}</td>
+  <td style="display:flex;gap:5px;align-items:center">
+    <button onclick="openDetail(${idx})" style="background:rgba(69,170,242,.18);color:#45aaf2;border:1px solid rgba(69,170,242,.3);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">🔍 Details</button>
+    <button onclick="deleteParticipant(${idx})" title="Teilnehmer löschen" style="background:rgba(252,92,101,.18);color:#fc5c65;border:1px solid rgba(252,92,101,.3);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-family:'Nunito',sans-serif">🗑️</button>
+  </td>`;
+  tbody.appendChild(tr);
+ });
+}
+
+let _fbListenerActive = false;
+async function loadAdmin(){
+ if(window._firebaseReady){
+  // Live-Listener: Admin-Tabelle aktualisiert sich automatisch
+  if(!_fbListenerActive){
+   _fbListenerActive = true;
+   window._fbListen(ps => renderAdminTable(ps));
+  }
+ } else {
+  // Fallback: localStorage
+  const ps = await load();
+  renderAdminTable(ps);
+ }
+}
+function toggleReveal(){ showHits=!showHits; loadAdmin(); toast(showHits?'👁️ Treffer sichtbar':'🙈 Treffer verborgen'); }
+function drawWinner(){
+  if(!participants.length){ toast('Noch keine Teilnehmer!'); return; }
+  participants.forEach(p => { p.score = calcHits(p.clicks||[]).score; });
+  const groups = {};
+  participants.forEach(p => {
+    const dept = (p.dept || '–').trim();
+    if(!groups[dept]) groups[dept] = [];
+    groups[dept].push(p);
+  });
+  const groupStats = Object.entries(groups).map(function(entry){
+    const dept = entry[0], ps = entry[1];
+    const scores = ps.map(p => p.score || 0);
+    const avg = scores.reduce(function(s,v){ return s+v; }, 0) / scores.length;
+    return { dept: dept, count: ps.length, avg: avg };
+  });
+  // Top 10 nach Durchschnitt sortieren, dann zufällig eine ziehen
+  groupStats.sort(function(a,b){ return b.avg - a.avg || b.count - a.count; });
+  const pool   = groupStats.slice(0, 10);
+  const winner = pool[Math.floor(Math.random() * pool.length)];
+  const rank   = pool.indexOf(winner) + 1;
+  document.getElementById('winner-wrap').innerHTML =
+    '<div class="winner-box">' +
+    '<h2>🎊 Zufalls-Gewinner aus Top 10 🎊</h2>' +
+    '<div class="winner-name">' + esc(winner.dept) + '</div>' +
+    '<div class="winner-score">Platz ' + rank + ' · Ø ' + winner.avg.toFixed(1) + ' / 10 · ' +
+      winner.count + ' Teilnehmer:in' + (winner.count!==1?'nen':'') + '</div>' +
+    '</div>';
+  showHits=true; loadAdmin();
+}
+async function clearAll(){
+ if(!confirm('Wirklich ALLE Daten löschen?')) return;
+ participants=[];
+ localStorage.removeItem(KEY);
+ if(window._firebaseReady) await window._fbClear();
+ document.getElementById('winner-wrap').innerHTML='';
+ loadAdmin(); toast('✅ Alle Daten gelöscht');
+}
+function exportCSV(){
+ if(!participants.length){ toast('Keine Daten!'); return; }
+ // Dieselben 10 Fehler wie beim Scoring
+ const scoringErrors=getScoringErrors();
+ const hdr=['Name','Abteilung','Uhrzeit','Markierungen','Treffer'].concat(scoringErrors.map((e,i)=>`F${i+1}: ${e.label}`));
+ const rows=participants.map(p=>{
+  const {score, hitErrors} = calcHits(p.clicks||[]);
+  return [p.name,p.dept||'',p.time||'',p.total,score,...scoringErrors.map(e=>hitErrors.has(e.key)?'Ja':'Nein')];
+ });
+ const csv=[hdr,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+ a.download=`quiz-${new Date().toISOString().slice(0,10)}.csv`;
+ a.click(); toast('📥 CSV wird heruntergeladen…');
+}
+// DETAIL MODAL
+function openDetail(idx){
+ const p=participants[idx]; if(!p) return;
+ // Score und Treffer aus gespeicherten Klicks berechnen
+ // scoringErrors = die ersten 10 eindeutigen Fehler (identisch mit scoreClicks)
+ const {score, hitErrors, scoringErrors} = calcHits(p.clicks||[]);
+ p.score = score; // synchron halten
+ document.getElementById('modal-title').textContent=`🔍 ${p.name}`;
+ // Score bar
+ const pct=Math.round(score/10*100);
+ const col=score===10?'#ffd700':score>=7?'#26de81':score>=4?'#45aaf2':'#fc5c65';
+ document.getElementById('modal-score').innerHTML=`
+ <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+ <div class="score-bar-track" style="flex:1">
+ <div class="score-bar-fill" style="width:${pct}%;background:${col}"></div>
+ </div>
+ <div style="color:#fff;font-weight:800;font-size:17px;white-space:nowrap">${score} / 10 Treffer</div>
+ </div>
+ <div style="color:rgba(255,255,255,.4);font-size:11px">${p.total} Markierungen · ${p.dept||''} · ${p.time}</div>
+ <div style="color:rgba(69,170,242,.6);font-size:10px;margin-top:4px">ℹ️ Blaue Zahlen = Reihenfolge der Klicks · Kreise = Fehlerzonen (grün = erkannt, rot = nicht erkannt)</div>`;
+  // Bild mit Zonen + User-Klicks
+ // Nur Zonen der ersten 10 Fehler anzeigen (= die wertenden Zonen)
+ const scoringKeys=new Set(scoringErrors.map(e=>e.key));
+ const imgDiv=document.getElementById('modal-img');
+ imgDiv.innerHTML = CFG.customImg ? `<img src="${CFG.customImg}" style="width:100%;height:auto;display:block">` : SVG;
+ // Kurz warten bis Bild gerendert ist, dann Zonen einzeichnen
+ const renderZoneDots = () => {
+  const imgEl = imgDiv.querySelector('img');
+  const imgW = imgEl ? imgEl.clientWidth  : imgDiv.clientWidth;
+  const imgH = imgEl ? imgEl.clientHeight : imgDiv.clientHeight || imgW * 0.6;
+  CFG.zones.forEach(z=>{
+   const errorKey=z.errorId!==undefined?z.errorId:z.id;
+   const isScoring=scoringKeys.has(errorKey);
+   const hit=isScoring && hitErrors.has(errorKey);
+   const dot=document.createElement('div');
+   dot.className='zone-dot';
+   // Trefferbereich als CSS-% – korrekt unabhängig vom Bildladezeitpunkt
+   const wPct = (z.r * 2) + '%';
+   const hPct = (z.r * 2) + '%';
+   const borderCol=!isScoring?'rgba(255,255,255,.25)':hit?'#26de81':'#fc5c65';
+   const bgCol=!isScoring?'rgba(255,255,255,.05)':hit?'rgba(38,222,129,.2)':'rgba(252,92,101,.12)';
+   const textCol=!isScoring?'rgba(255,255,255,.3)':hit?'#26de81':'#fc5c65';
+   dot.style.cssText=`left:${z.x}%;top:${z.y}%;width:${wPct};height:${hPct};
+ border-color:${borderCol};background:${bgCol};color:${textCol};font-size:10px;font-weight:800`;
+   dot.textContent=errorKey;
+   dot.title=z.label+(z.errorId!==undefined?' (Fehler-Nr. '+z.errorId+')':'')+(!isScoring?' [nicht gewertet]':'');
+   imgDiv.appendChild(dot);
+  });
+  (p.clicks||[]).forEach((c,i)=>{
+   const mk=document.createElement('div');
+   mk.className='user-dot';
+   mk.style.cssText=`left:${c.xPct}%;top:${c.yPct}%;width:20px;height:20px`;
+   mk.textContent=i+1;
+   imgDiv.appendChild(mk);
+  });
+ };
+ // Bild sofort oder nach Laden rendern
+ const imgEl = imgDiv.querySelector('img');
+ if(imgEl && imgEl.complete && imgEl.naturalWidth) { renderZoneDots(); }
+ else if(imgEl) { imgEl.onload = renderZoneDots; }
+ else { renderZoneDots(); }
+ // Fehlerliste: exakt dieselben 10 Fehler wie beim Scoring
+ document.getElementById('modal-list').innerHTML=scoringErrors.map((e,i)=>{
+  const hit=hitErrors.has(e.key);
+  return `<div class="err-item ${hit?'err-hit':'err-miss'}">
+  <span style="font-size:15px">${hit?'✅':'❌'}</span>
+  <span>${i+1}. ${esc(e.label)}</span>
+  </div>`;
+ }).join('');
+ document.getElementById('modal').style.display='block';
+ document.getElementById('modal-actions').innerHTML =
+   '<button onclick="openEditMode('+idx+')" style="background:rgba(247,183,49,.18);color:#f7b731;border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 16px;font-size:12px;font-weight:800;font-family:\'Nunito\',sans-serif;cursor:pointer">✏️ Klicks bearbeiten</button>';
+}
+function closeModal(){
+  document.getElementById('modal').style.display='none';
+  _editIdx = null; _editClicks = null;
+  renderAdminTable(participants);
+}
+
+// ── TEILNEHMER LÖSCHEN ──
+async function deleteParticipant(idx){
+  const p = participants[idx];
+  if(!p) return;
+  if(!confirm('Teilnehmer "' + p.name + '" wirklich löschen?')) return;
+  if(window._firebaseReady && p._fbKey){
+    const ok = await window._fbDelete(p._fbKey);
+    toast(ok ? '✅ Teilnehmer gelöscht' : '⚠️ Fehler beim Löschen');
+  } else {
+    participants.splice(idx, 1);
+    localStorage.setItem(KEY, JSON.stringify(participants));
+    renderAdminTable(participants);
+    toast('✅ Teilnehmer gelöscht');
+  }
+}
+
+// ── KLICK-EDITOR ──
+let _editIdx = null;
+let _editClicks = null;
+
+function openEditMode(idx){
+  const p = participants[idx];
+  if(!p) return;
+  _editIdx = idx;
+  _editClicks = JSON.parse(JSON.stringify(p.clicks||[]));
+
+  const actions = document.getElementById('modal-actions');
+  actions.innerHTML =
+    '<span style="color:rgba(255,255,255,.4);font-size:11px;flex:1;align-self:center">Klick auf Bild = hinzufügen · Klick auf blaue Zahl = entfernen</span>' +
+    '<button onclick="saveEditedClicks('+idx+')" style="background:linear-gradient(135deg,#26de81,#20bf6b);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:800;font-family:\'Nunito\',sans-serif;cursor:pointer">💾 Speichern</button>' +
+    '<button onclick="cancelEditMode('+idx+')" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;font-family:\'Nunito\',sans-serif;cursor:pointer">✕ Abbrechen</button>';
+
+  const imgDiv = document.getElementById('modal-img');
+  // Neues div (clone) um alte Event-Listener zu entfernen
+  const newDiv = imgDiv.cloneNode(false);
+  imgDiv.parentNode.replaceChild(newDiv, imgDiv);
+
+  const {hitErrors, scoringErrors} = calcHits(p.clicks||[]);
+  const scoringKeys = new Set(scoringErrors.map(e=>e.key));
+
+  newDiv.innerHTML = CFG.customImg
+    ? '<img src="' + CFG.customImg + '" style="width:100%;height:auto;display:block">'
+    : SVG;
+
+  function renderEditDots(){
+    newDiv.style.cursor = 'crosshair';
+    newDiv.querySelectorAll('.zone-dot,.user-dot').forEach(e=>e.remove());
+    CFG.zones.forEach(function(z){
+      const errorKey = z.errorId !== undefined ? z.errorId : z.id;
+      const isScoring = scoringKeys.has(errorKey);
+      const hit = isScoring && hitErrors.has(errorKey);
+      const dot = document.createElement('div');
+      dot.className = 'zone-dot';
+      dot.style.cssText = 'left:'+z.x+'%;top:'+z.y+'%;width:'+(z.r*2)+'%;height:'+(z.r*2)+'%;'
+        + 'border-color:' + (!isScoring?'rgba(255,255,255,.25)':hit?'#26de81':'#fc5c65') + ';'
+        + 'background:'   + (!isScoring?'rgba(255,255,255,.05)':hit?'rgba(38,222,129,.2)':'rgba(252,92,101,.12)') + ';'
+        + 'color:'        + (!isScoring?'rgba(255,255,255,.3)':hit?'#26de81':'#fc5c65') + ';'
+        + 'font-size:10px;font-weight:800;pointer-events:none';
+      dot.textContent = errorKey;
+      newDiv.appendChild(dot);
+    });
+    _editClicks.forEach(function(c,i){
+      const mk = document.createElement('div');
+      mk.className = 'user-dot';
+      mk.style.cssText = 'left:'+c.xPct+'%;top:'+c.yPct+'%;width:20px;height:20px;cursor:pointer';
+      mk.textContent = i+1;
+      mk.title = 'Klick zum Entfernen';
+      (function(ii){ mk.onclick = function(e){ e.stopPropagation(); _editClicks.splice(ii,1); renderEditDots(); }; })(i);
+      newDiv.appendChild(mk);
+    });
+  }
+
+  const imgEl = newDiv.querySelector('img');
+  if(imgEl){ if(imgEl.complete && imgEl.naturalWidth) renderEditDots(); else imgEl.onload = renderEditDots; }
+  else renderEditDots();
+
+  newDiv.addEventListener('click', function(e){
+    if(e.target.classList.contains('user-dot')) return;
+    if(_editClicks.length >= CFG.maxClicks){ toast('Maximal ' + CFG.maxClicks + ' Markierungen'); return; }
+    const r = newDiv.getBoundingClientRect();
+    _editClicks.push({ xPct:(e.clientX-r.left)/r.width*100, yPct:(e.clientY-r.top)/r.height*100 });
+    renderEditDots();
+  });
+}
+
+function cancelEditMode(idx){
+  _editIdx = null; _editClicks = null;
+  openDetail(idx);
+}
+
+async function saveEditedClicks(idx){
+  const p = participants[idx];
+  if(!p) return;
+  p.clicks = JSON.parse(JSON.stringify(_editClicks));
+  p.total = _editClicks.length;
+  p.score = calcHits(_editClicks).score;
+  if(window._firebaseReady && p._fbKey){
+    const ok = await window._fbUpdate(p._fbKey, p);
+    toast(ok ? '✅ Klicks gespeichert' : '⚠️ Fehler beim Speichern');
+  } else {
+    const stored = participants.map(function(x){ const c=Object.assign({},x); delete c._fbKey; return c; });
+    localStorage.setItem(KEY, JSON.stringify(stored));
+    toast('✅ Klicks gespeichert');
+  }
+  _editIdx = null; _editClicks = null;
+  openDetail(idx);
+}
+// HAFTUNGSAUSSCHLUSS
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  HIER KANNST DU DEN HAFTUNGSAUSSCHLUSS BEARBEITEN               ║
+// ║  Einfach den Text zwischen den Anführungszeichen ändern.         ║
+// ║  TITEL, META, FUSSZEILE: Einzeilig.                              ║
+// ║  ABSCHNITTE: "## Überschrift" gefolgt von Text.                  ║
+// ║  HINWEIS: Zeile mit "HINWEIS:" ergibt einen gelben Warnkasten.   ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const DISCLAIMER_TEXT = `
+TITEL: Haftungsausschluss & Nutzungshinweise
+META: Hygiene-Quiz · Lernspiel zur Hygienesensibilisierung · Stand: 2026
+FUSSZEILE: © 2026 Michael Engl, DSA — Alle Rechte vorbehalten
+
+## 1. Zweck des Spiels
+Dieses Lernspiel dient ausschließlich der spielerischen Sensibilisierung für hygienerelevante Themen im beruflichen Kontext. Es erhebt keinen Anspruch auf Vollständigkeit und ersetzt keine offizielle Hygieneunterweisung, Schulung oder rechtlich verbindliche Richtlinien.
+
+## 2. Keine Haftung für Inhalte
+Die dargestellten Fehler und Szenarien sind didaktisch vereinfacht und dienen rein illustrativen Zwecken. Eine Übertragbarkeit auf konkrete klinische oder betriebliche Situationen kann nicht garantiert werden. Der Ersteller übernimmt keine Haftung für Entscheidungen, die auf Basis dieses Spiels getroffen werden.
+
+HINWEIS: ⚠️ Dieses Spiel ist kein Ersatz für verbindliche Hygieneschulungen gemäß den jeweils geltenden gesetzlichen und institutionellen Vorgaben.
+
+## 3. Datenschutz
+Die im Rahmen der Anmeldung eingegebenen Pseudonyme und Gruppenzugehörigkeiten werden ausschließlich zur Auswertung innerhalb dieser Veranstaltung verwendet und nicht an Dritte weitergegeben. Eine dauerhafte Speicherung personenbezogener Daten ist nicht vorgesehen.
+
+## 4. Urheberrecht
+Konzept, Gestaltung und technische Umsetzung dieses Lernspiels wurden von Michael Engl, DSA entwickelt. Eine Vervielfältigung, Weitergabe oder Nutzung — auch auszugsweise — ist nur mit ausdrücklicher schriftlicher Genehmigung des Erstellers gestattet.
+
+## 5. Haftungsfreistellung
+Die Teilnahme an diesem Spiel erfolgt freiwillig. Weder der Ersteller noch die durchführende Institution haften für technische Fehler, Datenverlust oder sonstige unmittelbare oder mittelbare Schäden, die im Zusammenhang mit der Nutzung entstehen.
+`;
+// ══════════════════════════════════════════════════════════════════
+
+function parseDisclaimerTxt(txt){
+  const lines = txt.split('\n');
+  let titel = '', meta = '', fusszeile = '', html = '';
+  const bodyLines = [];
+  lines.forEach(l => {
+    const t = l.trim();
+    if(t.startsWith('TITEL:'))         titel     = t.slice(6).trim();
+    else if(t.startsWith('META:'))     meta      = t.slice(5).trim();
+    else if(t.startsWith('FUSSZEILE:')) fusszeile = t.slice(10).trim();
+    else bodyLines.push(l);
+  });
+  html += `<h2>${esc(titel)}</h2>`;
+  html += `<div class="doc-meta">${esc(meta)}</div>`;
+  let buf = '';
+  bodyLines.forEach(l => {
+    const t = l.trim();
+    if(t.startsWith('## ')){
+      if(buf){ html += `<p>${esc(buf.trim())}</p>`; buf = ''; }
+      html += `<h3>${esc(t.slice(3))}</h3>`;
+    } else if(t.startsWith('HINWEIS:')){
+      if(buf){ html += `<p>${esc(buf.trim())}</p>`; buf = ''; }
+      html += `<div class="highlight-box">${esc(t.slice(8).trim())}</div>`;
+    } else if(t === ''){
+      if(buf.trim()){ html += `<p>${esc(buf.trim())}</p>`; buf = ''; }
+    } else {
+      buf += (buf ? ' ' : '') + t;
+    }
+  });
+  if(buf.trim()) html += `<p>${esc(buf.trim())}</p>`;
+  return { html, fusszeile };
+}
+
+function openDisclaimer(){
+  document.getElementById('disclaimer-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  const { html, fusszeile } = parseDisclaimerTxt(DISCLAIMER_TEXT);
+  document.getElementById('disclaimer-body').innerHTML = html;
+  if(fusszeile) document.querySelector('.disclaimer-footer-note span').textContent = fusszeile;
+}
+function closeDisclaimer(){
+  document.getElementById('disclaimer-modal').style.display='none';
+  document.body.style.overflow='';
+}
+
+// UTILS
+function esc(s){ return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
+let _tt;
+function toast(msg){
+ const t=document.getElementById('toast');
+ t.textContent=msg; t.classList.add('show');
+ clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ════════════════════════════════════════
+//  ZONE EDITOR
+// ════════════════════════════════════════
+const KEY_Z = 'hq_zones_v1';
+let editorZones = [];
+
+function initZoneEditor(){
+  // Load saved zones into editor & CFG
+  const saved = (() => { try{ return JSON.parse(localStorage.getItem(KEY_Z)); }catch(e){ return null; } })();
+  const hasSaved = saved && saved.length;
+  if(hasSaved){
+    CFG.zones = saved;
+    editorZones = JSON.parse(JSON.stringify(saved));
+  } else {
+    editorZones = JSON.parse(JSON.stringify(CFG.zones));
+  }
+  const wrap = document.getElementById('ze-img-wrap');
+  wrap.innerHTML = '';
+  // find IMG_SRC or use customImg
+  const imgSrc = CFG.customImg || IMG_SRC_FALLBACK;
+  wrap.innerHTML = '<img src="' + imgSrc + '" alt="Suchbild" style="width:100%;height:auto;display:block">';
+  wrap.querySelector('img').onload = () => renderEditorZones();
+  // detach old listener, attach new
+  const newWrap = wrap.cloneNode(true);
+  wrap.parentNode.replaceChild(newWrap, wrap);
+  document.getElementById('ze-img-wrap').addEventListener('click', onEditorClick);
+  renderEditorZones();
+}
+
+function onEditorClick(e){
+  if(e.target.classList.contains('ze-dot')) return;
+  const wrap = document.getElementById('ze-img-wrap');
+  const r = wrap.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width  * 100;
+  const y = (e.clientY - r.top)  / r.height * 100;
+  if(editorZones.length >= 30){ toast('Maximal 30 Fehlerzonen erlaubt'); return; }
+  const newId = editorZones.length ? Math.max(...editorZones.map(z=>z.id)) + 1 : 1;
+  editorZones.push({ id: newId, x, y, r: 4, label: 'Fehler ' + newId });
+  renderEditorZones();
+}
+
+function removeEditorZone(id){
+  editorZones = editorZones.filter(z => z.id !== id);
+  renderEditorZones();
+}
+
+function renderEditorZones(){
+  const wrap = document.getElementById('ze-img-wrap');
+  wrap.querySelectorAll('.ze-dot').forEach(el => el.remove());
+  // Bildabmessungen holen für korrekte Pixel-Darstellung der Trefferzonen
+  const img = wrap.querySelector('img');
+  const imgW = img ? img.clientWidth  : wrap.clientWidth;
+  const imgH = img ? img.clientHeight : wrap.clientHeight || imgW * 0.6;
+  editorZones.forEach(z => {
+    const dot = document.createElement('div');
+    dot.className = 'ze-dot';
+    // Trefferbereich als %-Wert (funktioniert unabhängig vom Ladezeitpunkt)
+    // width: r*2% von Containerbreite = korrekte horizontale Trefferfläche
+    // height: r*2% von Containerhöhe = korrekte vertikale Trefferfläche
+    const wPct = (z.r * 2) + '%';
+    const hPct = (z.r * 2) + '%';
+    dot.style.cssText = 'left:'+z.x+'%;top:'+z.y+'%;width:'+wPct+';height:'+hPct;
+    dot.textContent = z.errorId !== undefined ? z.errorId : z.id;
+    const pxHint = imgW > 0 ? ` ≈ ${Math.round(z.r/100*imgW*2)}×${Math.round(z.r/100*imgH*2)}px` : '';
+    dot.title = z.label + ' — klicken zum Entfernen | Trefferbereich: r='+z.r+'%'+pxHint;
+    dot.onclick = (e) => { e.stopPropagation(); removeEditorZone(z.id); };
+    wrap.appendChild(dot);
+  });
+  // List
+  const list = document.getElementById('ze-list');
+  list.innerHTML = '';
+  editorZones.forEach(z => {
+    const row = document.createElement('div');
+    row.className = 'ze-item';
+    row.innerHTML =
+      '<span class="ze-num">'+z.id+'</span>' +
+      '<input class="ze-label-inp" placeholder="Bezeichnung des Fehlers" value="'+esc(z.label)+'" oninput="updZoneLabel('+z.id+',this.value)">' +
+      '<div class="ze-r-wrap"><span class="ze-r-lbl">Radius</span>' +
+      '<input class="ze-r-inp" type="number" min="2" max="50" value="'+z.r+'" oninput="updZoneRadius('+z.id+',this.value)">' +
+      (z.r > 12 ? '<span style="color:#fc5c65;font-size:10px;margin-left:3px" title="Großer Trefferbereich!">⚠️</span>' : '') +
+      '</div>' +
+      '<div class="ze-r-wrap"><span class="ze-r-lbl" title="Gleiche Nummer = selber Fehler">Fehler-Nr.</span>' +
+      '<input class="ze-r-inp" type="number" min="1" max="30" value="'+(z.errorId!==undefined?z.errorId:z.id)+'" title="Gleiche Nummer bei zusammengehörigen Zonen" oninput="updZoneErrorId('+z.id+',this.value)"></div>' +
+      '<button class="ze-del" onclick="removeEditorZone('+z.id+')">&#10005;</button>';
+    list.appendChild(row);
+  });
+}
+
+function updZoneLabel(id, val){
+  const z = editorZones.find(z=>z.id===id); if(z) z.label = val;
+}
+function updZoneRadius(id, val){
+  const z = editorZones.find(z=>z.id===id);
+  if(z){ z.r = Math.max(2, Math.min(50, Number(val)||6)); renderEditorZones(); }
+}
+function updZoneErrorId(id, val){
+  const z = editorZones.find(z=>z.id===id);
+  if(z){ z.errorId = Math.max(1, Math.min(30, Number(val)||id)); }
+}
+
+function saveZones(){
+  if(!editorZones.length){ toast('Keine Zonen gesetzt!'); return; }
+  // Sync labels from inputs
+  document.querySelectorAll('.ze-label-inp').forEach((inp,i)=>{
+    if(editorZones[i]) editorZones[i].label = inp.value.trim() || ('Fehler '+(i+1));
+  });
+  CFG.zones = JSON.parse(JSON.stringify(editorZones));
+  localStorage.setItem(KEY_Z, JSON.stringify(CFG.zones));
+  // Rescore existing participants
+  let ps = (() => { try{ return JSON.parse(localStorage.getItem('fq_v3'))||[]; }catch(e){ return []; } })();
+  ps.forEach(p => {
+    p.score = calcHits(p.clicks||[]).score;
+  });
+  localStorage.setItem('fq_v3', JSON.stringify(ps));
+  toast('Gespeichert — ' + CFG.zones.length + ' Fehlerzonen aktiv');
+  loadAdmin();
+}
+
+function exportZonesToHTML(){
+  if(!editorZones.length){ toast('Keine Zonen gesetzt!'); return; }
+  document.querySelectorAll('.ze-label-inp').forEach((inp,i)=>{
+    if(editorZones[i]) editorZones[i].label = inp.value.trim() || ('Fehler '+(i+1));
+  });
+  const zonesJSON = JSON.stringify(editorZones, null, 1).replace(/\n/g,'\n ');
+  // Aus originalem HTML-Snapshot (kein fetch nötig)
+  let html = _HTML_SOURCE;
+  // zones: [...] ersetzen
+  html = html.replace(/zones:\s*\[[\s\S]*?\](?=\s*\n\s*\]?\s*\})/, 'zones: '+zonesJSON);
+  if(!html.includes(zonesJSON)){
+    html = _HTML_SOURCE.replace(/zones:\s*\[[\s\S]*?\]/, 'zones: '+zonesJSON);
+  }
+  // DOCTYPE fehlt in outerHTML
+  const blob = new Blob(['<!DOCTYPE html>\n'+html],{type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('✅ index.html mit '+editorZones.length+' Zonen exportiert!');
+}
+
+function clearZones(){
+  if(!confirm('Alle Fehlerzonen loeschen?')) return;
+  editorZones = []; CFG.zones = [];
+  localStorage.removeItem(KEY_Z);
+  renderEditorZones();
+  toast('Zonen geloescht');
+}
+
+// Fallback if no IMG_SRC global defined
+const IMG_SRC_FALLBACK = CFG.customImg || '';
+
+// ════════════════════════════════════════
+//  STATIONSAUSWERTUNG
+// ════════════════════════════════════════
+function showStats(){
+  if(!participants.length){ toast('Noch keine Teilnehmer!'); return; }
+  // Sicherstellen dass alle Scores aktuell sind
+  participants.forEach(p => { p.score = calcHits(p.clicks||[]).score; });
+
+  // Gruppieren nach Abteilung
+  const groups = {};
+  participants.forEach(p => {
+    const dept = (p.dept || '–').trim();
+    if(!groups[dept]) groups[dept] = [];
+    groups[dept].push(p);
+  });
+
+  // Statistiken pro Gruppe berechnen
+  const stats = Object.entries(groups).map(([dept, ps]) => {
+    const scores = ps.map(p => p.score || 0);
+    const avg    = scores.reduce((s,v) => s+v, 0) / scores.length;
+    const max    = Math.max(...scores);
+    const min    = Math.min(...scores);
+    const perfect = scores.filter(s => s === 10).length;
+    return { dept, count: ps.length, avg, max, min, perfect, scores, participants: ps };
+  }).sort((a, b) => b.avg - a.avg || b.count - a.count);
+
+  renderStatsScreen(stats);
+  goTo('screen-stats');
+}
+
+function renderStatsScreen(stats){
+  const total     = participants.length;
+  const allScores = participants.map(p => p.score || 0);
+  const globalAvg = allScores.reduce((s,v)=>s+v,0) / allScores.length;
+  const perfect   = allScores.filter(s=>s===10).length;
+
+  // Sub-Text
+  document.getElementById('stats-sub-text').textContent =
+    stats.length + ' Gruppe' + (stats.length!==1?'n':'') + ' · ' + total + ' Teilnehmer:in' + (total!==1?'nen':'');
+  const secTitle = document.getElementById('stats-section-title');
+  if(secTitle) secTitle.textContent = (stats.length > 10 ? 'Top 10 von ' + stats.length + ' Gruppen' : 'Gruppen') + ' nach Trefferquote';
+
+  // KPI-Kacheln
+  document.getElementById('stats-summary').innerHTML = `
+    <div class="stats-kpi">
+      <div class="stats-kpi-val">${total}</div>
+      <div class="stats-kpi-lbl">Teilnehmer</div>
+    </div>
+    <div class="stats-kpi">
+      <div class="stats-kpi-val">${globalAvg.toFixed(1)}</div>
+      <div class="stats-kpi-lbl">Ø Treffer</div>
+    </div>
+    <div class="stats-kpi">
+      <div class="stats-kpi-val">${perfect}</div>
+      <div class="stats-kpi-lbl">Perfekt (10/10)</div>
+    </div>
+    <div class="stats-kpi" style="grid-column:1/-1;background:rgba(247,183,49,.08);border-color:rgba(247,183,49,.2)">
+      <div class="stats-kpi-val" style="font-size:22px">${esc(stats[0]&&stats[0].dept||'–')}</div>
+      <div class="stats-kpi-lbl">🏆 Beste Gruppe · Ø ${stats[0] ? stats[0].avg.toFixed(1) : '–'} / 10</div>
+    </div>`;
+
+  // Stationskarten
+  const list = document.getElementById('stats-list');
+  list.innerHTML = '';
+
+  const top10 = stats.slice(0, 10);
+  top10.forEach((s, i) => {
+    const rank    = i + 1;
+    const rankCls = rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'rank-other';
+    const rankLbl = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+    const pct     = Math.round(s.avg / 10 * 100);
+    const col     = s.avg>=8?'#ffd700':s.avg>=6?'#26de81':s.avg>=4?'#45aaf2':'#fc5c65';
+    const metaArr = [
+      `${s.count} Person${s.count!==1?'en':''}`,
+      `Max: ${s.max}/10`,
+      `Min: ${s.min}/10`,
+    ];
+    if(s.perfect) metaArr.push(`${s.perfect}× perfekt ⭐`);
+
+    // Individuelle Punkte als farbige Kästchen
+    const dotsHTML = s.scores.map((sc, di) => {
+      const dc = sc===10?'#ffd700':sc>=7?'#26de81':sc>=4?'#45aaf2':'#fc5c65';
+      const bg = sc===10?'rgba(255,215,0,.18)':sc>=7?'rgba(38,222,129,.15)':sc>=4?'rgba(69,170,242,.15)':'rgba(252,92,101,.12)';
+      return `<div class="station-dot" style="background:${bg};color:${dc};border:1px solid ${dc}40"
+        title="${esc(s.participants[di]?.name||'')} · ${sc}/10">${sc}</div>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = `station-card ${rankCls}`;
+    card.style.animationDelay = (i * 0.06) + 's';
+    card.innerHTML = `
+      <div class="station-top">
+        <div class="station-rank">${rankLbl}</div>
+        <div class="station-info">
+          <div class="station-name">${esc(s.dept)}</div>
+          <div class="station-meta">${metaArr.join(' · ')}</div>
+        </div>
+        <div class="station-avg-wrap">
+          <div class="station-avg-val" style="color:${col}">${s.avg.toFixed(1)}</div>
+          <div class="station-avg-lbl">Ø / 10</div>
+        </div>
+      </div>
+      <div class="station-bar-track">
+        <div class="station-bar-fill" data-pct="${pct}" style="background:linear-gradient(90deg,${col}aa,${col})"></div>
+      </div>
+      <div class="station-dots">${dotsHTML}</div>`;
+    list.appendChild(card);
+  });
+
+  // Balken animieren (kurz verzögert damit DOM gerendert ist)
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      document.querySelectorAll('.station-bar-fill').forEach(el => {
+        el.style.width = el.dataset.pct + '%';
+      });
+    }, 80);
+  });
+}
+
+
+// ── ABTEILUNG INLINE BEARBEITEN ──
+async function editDept(idx, cell){
+  const p = participants[idx];
+  if(!p) return;
+  const current = p.dept || '';
+  const orig = cell.textContent;
+  // Input-Element per DOM erstellen (kein innerHTML mit Anführungszeichen-Konflikt)
+  cell.innerHTML = '';
+  cell.style.padding = '2px 4px';
+  const inp = document.createElement('input');
+  inp.id = 'dept-inp-' + idx;
+  inp.value = current;
+  inp.style.cssText = 'background:#1a1c2e;border:1.5px solid #f7b731;border-radius:6px;padding:5px 8px;font-size:13px;font-weight:600;color:#fff;outline:none;width:120px';
+  inp.addEventListener('click', function(e){ e.stopPropagation(); });
+  inp.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') saveDept(idx, inp);
+    if(e.key === 'Escape') cancelDept(cell, orig);
+  });
+  const btnSave = document.createElement('span');
+  btnSave.textContent = '✅';
+  btnSave.title = 'Speichern';
+  btnSave.style.cssText = 'cursor:pointer;font-size:14px;margin-left:4px';
+  btnSave.addEventListener('click', function(e){ e.stopPropagation(); saveDept(idx, inp); });
+  const btnCancel = document.createElement('span');
+  btnCancel.textContent = '✕';
+  btnCancel.title = 'Abbrechen';
+  btnCancel.style.cssText = 'cursor:pointer;font-size:14px;margin-left:2px;color:rgba(255,255,255,.5)';
+  btnCancel.addEventListener('click', function(e){ e.stopPropagation(); cancelDept(cell, orig); });
+  cell.appendChild(inp);
+  cell.appendChild(btnSave);
+  cell.appendChild(btnCancel);
+  inp.focus(); inp.select();
+}
+
+function cancelDept(cell, orig){
+  cell.style.padding = '';
+  cell.innerHTML = orig;
+  cell.style.cursor = 'pointer';
+  cell.title = 'Klicken zum Bearbeiten';
+}
+
+async function saveDept(idx, inp){
+  const p = participants[idx];
+  if(!p || !inp) return;
+  const newDept = inp.value.trim();
+  const cell = inp.closest('td');
+  p.dept = newDept;
+  if(window._firebaseReady && p._fbKey){
+    const ok = await window._fbUpdate(p._fbKey, p);
+    toast(ok ? '✅ Gruppe gespeichert' : '⚠️ Fehler beim Speichern');
+  } else {
+    const stored = participants.map(function(x){ const c=Object.assign({},x); delete c._fbKey; return c; });
+    localStorage.setItem(KEY, JSON.stringify(stored));
+    toast('✅ Gruppe gespeichert');
+  }
+  if(cell){
+    cell.style.padding = '';
+    cell.innerHTML = esc(newDept || '–');
+    cell.style.cursor = 'pointer';
+    cell.title = 'Klicken zum Bearbeiten';
+  }
+}
+
+// ── GRUPPEN-EDITOR ──
+function openGroupEditor(){
+  if(!participants.length){ toast('Noch keine Teilnehmer!'); return; }
+  const groups = {};
+  participants.forEach(p => {
+    const dept = (p.dept || '–').trim();
+    if(!groups[dept]) groups[dept] = 0;
+    groups[dept]++;
+  });
+  const sorted = Object.entries(groups).sort((a,b) => b[1]-a[1]);
+  const list = document.getElementById('grp-list');
+  list.innerHTML = '';
+  sorted.forEach(function(entry){
+    const orig = entry[0], count = entry[1];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px';
+    row.innerHTML =
+      '<div style="font-size:11px;color:rgba(255,255,255,.35);min-width:32px;text-align:center;font-weight:700">' + count + 'x</div>' +
+      '<input data-orig="' + orig.replace(/"/g,'&quot;') + '" value="' + orig.replace(/"/g,'&quot;') + '"' +
+        ' style="flex:1;background:#1a1c2e;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;font-size:14px;font-family:\'Nunito\',sans-serif;font-weight:600;color:#fff;outline:none"' +
+        ' onfocus="this.style.borderColor=\'#f7b731\'" onblur="this.style.borderColor=\'rgba(255,255,255,.15)\'">' +
+      '<div style="font-size:10px;color:rgba(255,255,255,.2)">Teilnehmer:in' + (count!==1?'nen':'') + '</div>';
+    list.appendChild(row);
+  });
+  document.getElementById('grp-modal').style.display = 'flex';
+}
+
+function closeGroupEditor(){
+  document.getElementById('grp-modal').style.display = 'none';
+}
+
+async function saveGroupRenames(){
+  const inputs = document.querySelectorAll('#grp-list input');
+  const renames = {};
+  let hasChange = false;
+  inputs.forEach(function(inp){
+    const orig = inp.dataset.orig;
+    const newVal = inp.value.trim();
+    if(newVal && newVal !== orig){ renames[orig] = newVal; hasChange = true; }
+  });
+  if(!hasChange){ toast('Keine Änderungen'); closeGroupEditor(); return; }
+
+  // Alle betroffenen Teilnehmer aktualisieren
+  const saves = [];
+  participants.forEach(function(p){
+    const dept = (p.dept || '–').trim();
+    if(renames[dept]){
+      p.dept = renames[dept];
+      if(window._firebaseReady && p._fbKey){
+        saves.push(window._fbUpdate(p._fbKey, p));
+      }
+    }
+  });
+  if(saves.length){
+    await Promise.all(saves);
+  } else {
+    // localStorage-Fallback
+    const stored = participants.map(function(x){ const c=Object.assign({},x); delete c._fbKey; return c; });
+    localStorage.setItem(KEY, JSON.stringify(stored));
+  }
+
+  closeGroupEditor();
+  const n = Object.keys(renames).length;
+  toast('✅ ' + n + ' Gruppe' + (n!==1?'n':'') + ' umbenannt');
+  renderAdminTable(participants);
+}
+
+// ── SNAPSHOT EXPORT ──
+function exportSnapshot(){
+  if(!participants.length){ toast('Keine Daten vorhanden!'); return; }
+  const data = {
+    exportedAt: new Date().toISOString(),
+    exportedAtLocal: new Date().toLocaleString('de-AT'),
+    count: participants.length,
+    participants: participants.map(function(p){
+      const c = Object.assign({}, p);
+      delete c._fbKey;
+      return c;
+    })
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const ts   = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+  a.href     = url;
+  a.download = 'hygiene-quiz-snapshot_' + ts + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Snapshot gespeichert (' + participants.length + ' Einträge)');
+}
+
+// ── SNAPSHOT IMPORT ──
+function importSnapshot(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    let data;
+    try{ data = JSON.parse(e.target.result); }
+    catch(err){ toast('⚠️ Ungültige JSON-Datei'); input.value=''; return; }
+
+    const list = data.participants || (Array.isArray(data) ? data : null);
+    if(!list || !list.length){ toast('⚠️ Keine Teilnehmer in der Datei gefunden'); input.value=''; return; }
+
+    const confirmMsg = [
+      'Snapshot vom ' + (data.exportedAtLocal || data.exportedAt || 'unbekannt'),
+      list.length + ' Eintraege gefunden.',
+      '',
+      'OK = bestehende Daten ERSETZEN',
+      'Abbrechen = nichts aendern'
+    ].join(String.fromCharCode(10));
+    const action = confirm(confirmMsg);
+    if(!action){ input.value=''; return; }
+
+    if(window._firebaseReady){
+      // Firebase: komplett löschen, dann neu schreiben
+      await window._fbClear();
+      let n = 0;
+      for(const p of list){
+        const clean = Object.assign({}, p);
+        delete clean._fbKey;
+        if(window._fbPush){
+          await window._fbPush(clean);
+        }
+        n++;
+      }
+      toast('✅ ' + n + ' Einträge wiederhergestellt');
+      loadAdmin();
+    } else {
+      // localStorage-Fallback
+      localStorage.setItem(KEY, JSON.stringify(list));
+      participants = list;
+      renderAdminTable(participants);
+      toast('✅ ' + list.length + ' Einträge wiederhergestellt');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+</script></body></html>
